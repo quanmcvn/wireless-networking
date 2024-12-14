@@ -17,7 +17,7 @@ class BFSK:
 		
 		self.fs = 10000      # Tần số mẫu (samples per second)
 
-		self.A_n = 0.0000002       # Cường độ nhiễu AWGN
+		self.A_n = 0.2       # Cường độ nhiễu AWGN
 
 		self.lo = 0.5        # Hệ số suy hao
 
@@ -203,7 +203,6 @@ class BFSK:
 		plt.figure(figsize=(20, 10))
 		plt.plot(snrs, bers, marker='o', linestyle='-', color='b', label='SNR vs BER')
 
-		# Add labels and title
 		plt.xlabel('SNR (dB)')
 		plt.ylabel('BER')
 		plt.title('SNR vs BER')
@@ -211,7 +210,6 @@ class BFSK:
 
 		plt.legend()
 
-		# Show the plot
 		plt.show()
 
 	def part_c_x(self):
