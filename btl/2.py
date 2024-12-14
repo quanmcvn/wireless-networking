@@ -17,11 +17,11 @@ class BFSK:
 		
 		self.fs = 10000      # Tần số mẫu (samples per second)
 
-		self.A_n = 0.2       # Cường độ nhiễu AWGN
+		self.A_n = 0.0000002       # Cường độ nhiễu AWGN
 
 		self.lo = 0.5        # Hệ số suy hao
 
-	def do_one(self, do_n = False):
+	def do_one(self, do_n = False, do_vals = False):
 		# Thời gian và tín hiệu điều chế BFSK
 		self.omega_1 = 2 * np.pi * self.f_1  # Tần số góc của sóng cơ sở 1
 		self.omega_2 = 2 * np.pi * self.f_2  # Tần số góc của sóng cơ sở 2
@@ -70,16 +70,24 @@ class BFSK:
 
 		self.s_reconstructed = (2 * z / self.lo) / self.C - self.C + (self.C - self.A) # Không biết tại sao phải cộng (C - A)
 
+		self.x_1 = self.s_reconstructed * (self.A * np.sin(self.omega_1 * self.t))
+		self.x_2 = self.s_reconstructed * (self.A * np.sin(self.omega_2 * self.t))
+
 		# Phân biệt bit 0 và 1 dựa vào năng lượng trong mỗi bit
 		self.bit_decoded = []
-		# self.vals = []
+		if do_vals:
+			self.vals = []
 		for i in range(self.n_bits):
 			start_time = i * self.T_bit
 			end_time = (i + 1) * self.T_bit
 			# Tính tích phân mức năng lượng của tín hiệu trong khoảng thời gian 1 bit
-			z1 = np.trapz(y=np.square(self.s_reconstructed[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
-			# for _ in range(self.fs // self.bit_rate):
-			# 	self.vals.append(z1)
+			# z1 = np.trapz(y=np.square(self.s_reconstructed[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
+			z1 = np.trapz(y=np.square(self.x_1[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
+			z2 = np.trapz(y=np.square(self.x_2[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
+			
+			if do_vals:
+				for _ in range(self.fs // self.bit_rate):
+					self.vals.append(z2 - z1)
 			# z1 *= (self.fs / self.f)
 			# So sánh với ngưỡng để xác định bit
 			# def get_val(x):
@@ -87,8 +95,7 @@ class BFSK:
 			# 	return (np.sin(coef * x) + coef * x) / (2 * coef)
 			# print(self.bit_sequence[i], z1)
 			# decide = get_val(end_time) - get_val(start_time)
-			decide = 0.0004 # hardcode cba
-			if z1 > decide: 
+			if z1 < z2: 
 				self.bit_decoded.append(1)
 			else:
 				self.bit_decoded.append(0)
@@ -240,7 +247,7 @@ class BFSK:
 		plt.show()
 
 	def part_d_b(self):
-		self.do_one(do_n=True)
+		self.do_one(do_n=True, do_vals=True)
 
 		plt.figure(figsize=(20, 10))
 
@@ -264,7 +271,7 @@ class BFSK:
 
 		plt.subplot(4, 1, 4)
 		plt.plot(self.t, self.vals)
-		plt.title('Tích phân s(t)')
+		plt.title('Hiệu tích phân x_1(t) và x_2(t)')
 		plt.xlabel('Thời gian (s)')
 		plt.ylabel('Biên độ')
 
@@ -279,5 +286,6 @@ def main():
 	b.part_d()
 	b.part_e()
 	b.part_f()
+	# b.part_d_b()
 
 main()
