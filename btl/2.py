@@ -185,6 +185,8 @@ class BFSK:
 
 	def part_f(self):
 		self.n_bits = 100
+		# Các giá trị A_n được thử có dạng 1e-6 * 1.1 ** i (i từ 0->300), là hàm mũ
+		l_A_n = self.A_n
 		A_ns = [1e-6]
 		for _ in range(300):
 			A_ns.append(A_ns[-1] * 1.1)
@@ -199,7 +201,8 @@ class BFSK:
 			snr_db = 10 * np.log10(snr_linear)
 			bers.append(self.ber)
 			snrs.append(snr_db)
-		
+		self.A_n = l_A_n
+
 		plt.figure(figsize=(20, 10))
 		plt.plot(snrs, bers, marker='o', linestyle='-', color='b', label='SNR vs BER')
 
@@ -210,6 +213,7 @@ class BFSK:
 
 		plt.legend()
 
+		plt.tight_layout()
 		plt.show()
 
 	def part_c_x(self):
@@ -284,6 +288,5 @@ def main():
 	b.part_d()
 	b.part_e()
 	b.part_f()
-	# b.part_d_b()
 
 main()

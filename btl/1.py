@@ -20,9 +20,7 @@ class ASK:
 
 		self.lo = 0.5        # Hệ số suy hao
 
-		self.do_one()
-
-	def do_one(self):
+	def do_one(self, do_vals=False):
 		# Thời gian và tín hiệu điều chế ASK
 		self.omega0 = 2 * np.pi * self.f  # Tần số góc của sóng cơ sở
 		self.omega_c = 2 * np.pi * self.f_c  # Tần số góc của sóng mang
@@ -65,14 +63,16 @@ class ASK:
 
 		# Phân biệt bit 0 và 1 dựa vào năng lượng trong mỗi bit
 		self.bit_decoded = []
-		# self.vals = []
+		if do_vals:
+			self.vals = []
 		for i in range(self.n_bits):
 			start_time = i * self.T_bit
 			end_time = (i + 1) * self.T_bit
 			# Tính tích phân mức năng lượng của tín hiệu trong khoảng thời gian 1 bit
 			z1 = np.trapz(y=np.square(self.s_reconstructed[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
-			# for _ in range(self.fs // self.bit_rate):
-			# 	self.vals.append(z1)
+			if do_vals:
+				for _ in range(self.fs // self.bit_rate):
+					self.vals.append(z1)
 			# z1 *= (self.fs / self.f)
 			# So sánh với ngưỡng để xác định bit
 			# def get_val(x):
@@ -90,7 +90,8 @@ class ASK:
 		self.ber = bit_error / self.n_bits  # Tỷ lệ bit bị lỗi
 
 	def part_a(self):
-		# Vẽ tín hiệu theo thời gian
+		self.do_one()
+
 		plt.figure(figsize=(20, 10))
 		plt.subplot(2, 1, 1)
 		plt.plot(self.t, self.s)
@@ -117,6 +118,8 @@ class ASK:
 		plt.show()
 	
 	def part_b(self):
+		self.do_one()
+
 		plt.figure(figsize=(20, 10))
 
 		plt.subplot(2, 1, 1)
@@ -144,6 +147,8 @@ class ASK:
 		plt.show()
 
 	def part_c(self):
+		self.do_one()
+
 		plt.figure(figsize=(20, 10))
 
 		plt.subplot(3, 1, 1)
@@ -173,7 +178,49 @@ class ASK:
 		plt.tight_layout()
 		plt.show()
 
+	def part_d(self):
+		self.do_one()
+
+		print("Dữ liệu gốc: ", self.bit_sequence)
+		print("Dữ liệu sau giải điều chế: ", self.bit_decoded)
+		print(f"Tỷ lệ bit bị lỗi (BER): {self.ber:.4f}")
+
+	def part_e(self):
+		self.n_bits = 100
+		# Các giá trị A_n được thử có dạng 1e-6 * 1.1 ** i (i từ 0->300), là hàm mũ
+		l_A_n = self.A_n
+		A_ns = [1e-6]
+		for _ in range(300):
+			A_ns.append(A_ns[-1] * 1.1)
+		bers = []
+		snrs = []
+		for A_n in A_ns:
+			self.A_n = A_n
+			self.do_one()
+			signal_power = np.mean(self.s ** 2)
+			noise_power = np.mean(self.noise ** 2)
+			snr_linear = signal_power / noise_power
+			snr_db = 10 * np.log10(snr_linear)
+			bers.append(self.ber)
+			snrs.append(snr_db)
+		self.A_n = l_A_n
+		
+		plt.figure(figsize=(20, 10))
+		plt.plot(snrs, bers, marker='o', linestyle='-', color='b', label='SNR vs BER')
+
+		plt.xlabel('SNR (dB)')
+		plt.ylabel('BER')
+		plt.title('SNR vs BER')
+		plt.grid(True)
+
+		plt.legend()
+
+		plt.tight_layout()
+		plt.show()
+
 	def part_c_b(self):
+		self.do_one()
+
 		plt.figure(figsize=(20, 10))
 
 		plt.subplot(2, 1, 1)
@@ -192,6 +239,7 @@ class ASK:
 		plt.show()
 
 	def part_d_b(self):
+		self.do_one(do_vals=True)
 
 		plt.figure(figsize=(20, 10))
 
@@ -214,40 +262,6 @@ class ASK:
 		plt.ylabel('Biên độ')
 
 		plt.tight_layout()
-		plt.show()
-
-	def part_d(self):
-		print("Dữ liệu gốc: ", self.bit_sequence)
-		print("Dữ liệu sau giải điều chế: ", self.bit_decoded)
-		print(f"Tỷ lệ bit bị lỗi (BER): {self.ber:.4f}")
-
-	def part_e(self):
-		self.n_bits = 100
-		A_ns = [1e-6]
-		for _ in range(300):
-			A_ns.append(A_ns[-1] * 1.1)
-		bers = []
-		snrs = []
-		for A_n in A_ns:
-			self.A_n = A_n
-			self.do_one()
-			signal_power = np.mean(self.s ** 2)
-			noise_power = np.mean(self.noise ** 2)
-			snr_linear = signal_power / noise_power
-			snr_db = 10 * np.log10(snr_linear)
-			bers.append(self.ber)
-			snrs.append(snr_db)
-		
-		plt.figure(figsize=(20, 10))
-		plt.plot(snrs, bers, marker='o', linestyle='-', color='b', label='SNR vs BER')
-
-		plt.xlabel('SNR (dB)')
-		plt.ylabel('BER')
-		plt.title('SNR vs BER')
-		plt.grid(True)
-
-		plt.legend()
-
 		plt.show()
 
 def main():
