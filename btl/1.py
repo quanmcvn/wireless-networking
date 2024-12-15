@@ -38,7 +38,8 @@ class ASK:
 			# Tạo sóng cho mỗi bit (bit = 0 hoặc bit = 1)
 			start_time = i * self.T_bit
 			end_time = (i + 1) * self.T_bit
-			self.s[(self.t >= start_time) & (self.t < end_time)] = self.A * (self.bit_sequence[i] * np.cos(self.omega0 * self.t[(self.t >= start_time) & (self.t < end_time)]))
+			self.s[(self.t >= start_time) & (self.t < end_time)] = \
+				self.A * (self.bit_sequence[i] * np.cos(self.omega0 * self.t[(self.t >= start_time) & (self.t < end_time)]))
 
 		# Sóng mang (tuy nhiên không dùng như này)
 		# self.c = self.C * np.sin(self.omega_c * self.t)
@@ -91,8 +92,6 @@ class ASK:
 		self.ber = bit_error / self.n_bits  # Tỷ lệ bit bị lỗi
 
 	def part_a(self):
-		self.do_one()
-
 		plt.figure(figsize=(20, 10))
 		plt.subplot(2, 1, 1)
 		plt.plot(self.t, self.s)
@@ -119,8 +118,6 @@ class ASK:
 		plt.show()
 	
 	def part_b(self):
-		self.do_one()
-
 		plt.figure(figsize=(20, 10))
 
 		plt.subplot(2, 1, 1)
@@ -148,8 +145,6 @@ class ASK:
 		plt.show()
 
 	def part_c(self):
-		self.do_one()
-
 		plt.figure(figsize=(20, 10))
 
 		plt.subplot(3, 1, 1)
@@ -180,8 +175,6 @@ class ASK:
 		plt.show()
 
 	def part_d(self):
-		self.do_one()
-
 		print("Dữ liệu gốc: ", self.bit_sequence)
 		print("Dữ liệu sau giải điều chế: ", self.bit_decoded)
 		print(f"Tỷ lệ bit bị lỗi (BER): {self.ber:.4f}")
@@ -269,6 +262,7 @@ class ASK:
 
 def main():
 	a = ASK()
+	a.do_one()
 	a.part_a()
 	a.part_b()
 	a.part_c()

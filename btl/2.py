@@ -105,9 +105,6 @@ class BFSK:
 		self.ber = bit_error / self.n_bits  # Tỷ lệ bit bị lỗi
 
 	def part_a(self):
-		self.do_one()
-
-		# Vẽ tín hiệu theo thời gian
 		plt.figure(figsize=(20, 10))
 		plt.subplot(2, 1, 1)
 		plt.plot(self.t, self.s)
@@ -137,12 +134,11 @@ class BFSK:
 		l_f_1, l_f_2 = (self.f_1, self.f_2)
 		self.f_1 = 50
 		self.f_2 = 100
+		self.do_one()
 		self.part_a()
 		self.f_1, self.f_2 = (l_f_1, l_f_2)
 
 	def part_c(self):
-		self.do_one()
-
 		plt.figure(figsize=(20, 10))
 
 		plt.plot(self.t, self.m)
@@ -154,8 +150,6 @@ class BFSK:
 		plt.show()
 
 	def part_d(self):
-		self.do_one()
-
 		plt.figure(figsize=(20, 10))
 
 		plt.plot(self.t, self.r)
@@ -167,8 +161,6 @@ class BFSK:
 		plt.show()
 
 	def part_e(self):
-		self.do_one()
-
 		plt.figure(figsize=(20, 10))
 
 		plt.subplot(1, 1, 1)
@@ -285,11 +277,15 @@ class BFSK:
 
 def main():
 	b = BFSK()
+	b.do_one()
 	b.part_a()
-	b.part_b()
 	b.part_c()
 	b.part_d()
 	b.part_e()
+
+	b.part_b()
+
 	b.part_f()
+
 
 main()
