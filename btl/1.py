@@ -39,7 +39,7 @@ class ASK:
 			start_time = i * self.T_bit
 			end_time = (i + 1) * self.T_bit
 			self.s[(self.t >= start_time) & (self.t < end_time)] = \
-				self.A * (self.bit_sequence[i] * np.cos(self.omega0 * self.t[(self.t >= start_time) & (self.t < end_time)]))
+				self.A * (self.bit_sequence[i] * np.sin(self.omega0 * self.t[(self.t >= start_time) & (self.t < end_time)]))
 
 		# Sóng mang (tuy nhiên không dùng như này)
 		# self.c = self.C * np.sin(self.omega_c * self.t)
