@@ -53,7 +53,7 @@ class ASK:
 		self.r = self.lo * self.m + self.noise
 
 		# Nhân tín hiệu thu được với sóng mang
-		r_mult = self.r * np.sin(self.omega_c * self.t)
+		r_mult = self.r * self.C * np.sin(self.omega_c * self.t)
 
 		# Bộ lọc tần số thấp (Low-pass filter)
 		cutoff = 200   # Tần số cắt
@@ -61,7 +61,7 @@ class ASK:
 		b, a = butter(order, 2 * cutoff / self.fs, btype='low', analog=False)
 		z = filtfilt(b, a, r_mult)
 
-		self.s_reconstructed = (2 * z / self.lo) / self.C - self.C + (self.C - self.A)
+		self.s_reconstructed = (2 * z / self.lo) / self.C - self.C
 
 		# Phân biệt bit 0 và 1 dựa vào năng lượng trong mỗi bit
 		self.bit_decoded = []
