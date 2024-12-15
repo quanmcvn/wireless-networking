@@ -70,7 +70,7 @@ class ASK:
 			start_time = i * self.T_bit
 			end_time = (i + 1) * self.T_bit
 			# Tính tích phân mức năng lượng của tín hiệu trong khoảng thời gian 1 bit
-			z1 = np.trapz(y=np.square(self.s[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
+			z1 = np.trapz(y=np.square(self.s_reconstructed[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
 			if do_vals:
 				for _ in range(int(1/self.T_bit)):
 					self.vals.append(z1)
