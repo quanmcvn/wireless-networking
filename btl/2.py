@@ -83,8 +83,8 @@ class BFSK:
 			end_time = (i + 1) * self.T_bit
 			# Tính tích phân mức năng lượng của tín hiệu trong khoảng thời gian 1 bit
 			# z1 = np.trapz(y=np.square(self.s_reconstructed[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
-			z1 = np.trapz(y=np.square(self.x_1[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
-			z2 = np.trapz(y=np.square(self.x_2[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
+			z1 = np.trapz(y=(self.x_1[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
+			z2 = np.trapz(y=(self.x_2[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
 			
 			if do_vals:
 				for _ in range(self.fs // self.bit_rate):
@@ -211,6 +211,33 @@ class BFSK:
 		plt.tight_layout()
 		plt.show()
 
+	def part_b_x(self):
+		plt.figure(figsize=(20, 10))
+
+		plt.subplot(2, 1, 1)
+		plt.plot(self.t, self.m)
+		plt.title('Tín hiệu sau điều biến AM theo thời gian')
+		plt.xlabel('Thời gian (s)')
+		plt.ylabel('Biên độ')
+
+		# Tính và vẽ phổ tần số của tín hiệu
+		M_f = np.fft.fft(self.m)
+		frequencies = np.fft.fftfreq(len(self.t), 1 / self.fs)
+
+		# Chỉ lấy phổ 1 phía (single-sided spectrum)
+		half_range = len(frequencies) // 2
+		M_f = M_f[:half_range]
+		frequencies = frequencies[:half_range]
+
+		plt.subplot(2, 1, 2)
+		plt.plot(frequencies, 2 * np.abs(M_f) / len(self.m))  # Biểu diễn phổ tần số
+		plt.title('Phổ tần số của tín hiệu AM')
+		plt.xlabel('Tần số (Hz)')
+		plt.ylabel('Biên độ')
+
+		plt.tight_layout()
+		plt.show()
+
 	def part_c_x(self):
 		self.do_one()
 
@@ -239,6 +266,29 @@ class BFSK:
 		plt.title('Tín hiệu sau khi lọc (s(t) đã tái tạo lại)')
 		plt.xlabel('Thời gian (s)')
 		plt.ylabel('Biên độ')
+
+		plt.tight_layout()
+		plt.show()
+
+	def part_c_c_x(self):
+		self.n_bits = 50
+		num_diff = np.zeros(self.n_bits + 1)
+
+		times = 5000
+		for _ in range(times):
+			self.do_one()
+			num_diff[np.sum(self.bit_sequence == self.bit_decoded)] += 1
+		
+		num_diff /= times
+		num_diff *= 100
+		
+		plt.figure(figsize=(20, 10))
+
+		plt.bar(range(self.n_bits + 1), num_diff)
+
+		plt.title('Tỉ lệ chính xác')
+		plt.xlabel('Số bit chính xác')
+		plt.ylabel('Tỉ lệ (%)')
 
 		plt.tight_layout()
 		plt.show()
@@ -279,8 +329,8 @@ def main():
 	b = BFSK()
 	b.do_one()
 	b.part_a()
-	b.part_c()
-	b.part_d()
+	b.part_b_x()
+	b.part_c_x()
 	b.part_e()
 
 	b.part_b()

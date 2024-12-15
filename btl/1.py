@@ -82,7 +82,7 @@ class ASK:
 			# 	return (np.sin(coef * x) + coef * x) / (2 * coef)
 			
 			# decide = get_val(end_time) - get_val(start_time)
-			decide = 0.0004 # hardcode cba
+			decide = 0.00035 # hardcode cba
 			if z1 > decide: 
 				self.bit_decoded.append(1)
 			else:
@@ -230,6 +230,29 @@ class ASK:
 		plt.title('Tín hiệu sau khi lọc (s(t) đã tái tạo lại)')
 		plt.xlabel('Thời gian (s)')
 		plt.ylabel('Biên độ')
+
+		plt.tight_layout()
+		plt.show()
+
+	def part_c_c(self):
+		self.n_bits = 50
+		num_diff = np.zeros(self.n_bits + 1)
+
+		times = 5000
+		for _ in range(times):
+			self.do_one()
+			num_diff[np.sum(self.bit_sequence == self.bit_decoded)] += 1
+		
+		num_diff /= times
+		num_diff *= 100
+		
+		plt.figure(figsize=(20, 10))
+
+		plt.bar(range(self.n_bits + 1), num_diff)
+
+		plt.title('Tỉ lệ chính xác')
+		plt.xlabel('Số bit chính xác')
+		plt.ylabel('Tỉ lệ (%)')
 
 		plt.tight_layout()
 		plt.show()
