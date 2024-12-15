@@ -20,12 +20,13 @@ class ASK:
 
 		self.lo = 0.5        # Hệ số suy hao
 
-	def do_one(self, do_vals=False):
+	def do_one(self, do_vals=False, do_random_bit=True):
 		# Thời gian và tín hiệu điều chế ASK
 		self.omega0 = 2 * np.pi * self.f  # Tần số góc của sóng cơ sở
 		self.omega_c = 2 * np.pi * self.f_c  # Tần số góc của sóng mang
 		
-		self.bit_sequence = np.random.randint(0, 2, self.n_bits)  # Tạo chuỗi 10 bit ngẫu nhiên
+		if do_random_bit:
+			self.bit_sequence = np.random.randint(0, 2, self.n_bits)  # Tạo chuỗi 10 bit ngẫu nhiên
 		
 		self.T_bit = 1 / self.bit_rate  # Thời gian của 1 bit
 		self.T = self.n_bits * self.T_bit    # Tổng thời gian cho tín hiệu điều chế
@@ -69,9 +70,9 @@ class ASK:
 			start_time = i * self.T_bit
 			end_time = (i + 1) * self.T_bit
 			# Tính tích phân mức năng lượng của tín hiệu trong khoảng thời gian 1 bit
-			z1 = np.trapz(y=np.square(self.s_reconstructed[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
+			z1 = np.trapz(y=np.square(self.s[(self.t >= start_time) & (self.t < end_time)]), x=self.t[(self.t >= start_time) & (self.t < end_time)])
 			if do_vals:
-				for _ in range(self.fs // self.bit_rate):
+				for _ in range(int(1/self.T_bit)):
 					self.vals.append(z1)
 			# z1 *= (self.fs / self.f)
 			# So sánh với ngưỡng để xác định bit
@@ -186,9 +187,11 @@ class ASK:
 		print(f"Tỷ lệ bit bị lỗi (BER): {self.ber:.4f}")
 
 	def part_e(self):
+		l_A_n, l_n_bits = self.A_n, self.n_bits
+
 		self.n_bits = 100
+		self.bit_sequence = np.random.randint(0, 2, self.n_bits)
 		# Các giá trị A_n được thử có dạng 1e-6 * 1.1 ** i (i từ 0->300), là hàm mũ
-		l_A_n = self.A_n
 		A_ns = [1e-6]
 		for _ in range(300):
 			A_ns.append(A_ns[-1] * 1.1)
@@ -196,14 +199,14 @@ class ASK:
 		snrs = []
 		for A_n in A_ns:
 			self.A_n = A_n
-			self.do_one()
+			self.do_one(do_random_bit=False)
 			signal_power = np.mean(self.s ** 2)
 			noise_power = np.mean(self.noise ** 2)
 			snr_linear = signal_power / noise_power
 			snr_db = 10 * np.log10(snr_linear)
 			bers.append(self.ber)
 			snrs.append(snr_db)
-		self.A_n = l_A_n
+		self.A_n, self.n_bits = l_A_n, l_n_bits
 		
 		plt.figure(figsize=(20, 10))
 		plt.plot(snrs, bers, marker='o', linestyle='-', color='b', label='SNR vs BER')

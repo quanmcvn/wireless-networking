@@ -21,13 +21,14 @@ class BFSK:
 
 		self.lo = 0.5        # Hệ số suy hao
 
-	def do_one(self, do_n = False, do_vals = False):
+	def do_one(self, do_n = False, do_vals = False, do_random_bit=True):
 		# Thời gian và tín hiệu điều chế BFSK
 		self.omega_1 = 2 * np.pi * self.f_1  # Tần số góc của sóng cơ sở 1
 		self.omega_2 = 2 * np.pi * self.f_2  # Tần số góc của sóng cơ sở 2
 		self.omega_c = 2 * np.pi * self.f_c  # Tần số góc của sóng mang
 		
-		self.bit_sequence = np.random.randint(0, 2, self.n_bits)  # Tạo chuỗi 10 bit ngẫu nhiên
+		if do_random_bit:
+			self.bit_sequence = np.random.randint(0, 2, self.n_bits)  # Tạo chuỗi 10 bit ngẫu nhiên
 		
 		self.T_bit = 1 / self.bit_rate  # Thời gian của 1 bit
 		self.T = self.n_bits * self.T_bit    # Tổng thời gian cho tín hiệu điều chế
@@ -45,8 +46,8 @@ class BFSK:
 			start_time = i * self.T_bit
 			end_time = (i + 1) * self.T_bit
 			self.s[(self.t >= start_time) & (self.t < end_time)] = \
-			    self.A * (self.bit_sequence[i] * np.cos(self.omega_1 * self.t[(self.t >= start_time) & (self.t < end_time)])) \
-			  + self.A * ((1 - self.bit_sequence[i]) * np.cos(self.omega_2 * self.t[(self.t >= start_time) & (self.t < end_time)]))
+			    self.A * (self.bit_sequence[i] * np.sin(self.omega_1 * self.t[(self.t >= start_time) & (self.t < end_time)])) \
+			  + self.A * ((1 - self.bit_sequence[i]) * np.sin(self.omega_2 * self.t[(self.t >= start_time) & (self.t < end_time)]))
 
 		# Sóng mang (tuy nhiên không dùng như này)
 		# self.c = self.C * np.sin(self.omega_c * self.t)
@@ -87,7 +88,7 @@ class BFSK:
 			
 			if do_vals:
 				for _ in range(self.fs // self.bit_rate):
-					self.vals.append(z2 - z1)
+					self.vals.append(z1 - z2)
 			# z1 *= (self.fs / self.f)
 			# So sánh với ngưỡng để xác định bit
 			# def get_val(x):
@@ -95,7 +96,7 @@ class BFSK:
 			# 	return (np.sin(coef * x) + coef * x) / (2 * coef)
 			# print(self.bit_sequence[i], z1)
 			# decide = get_val(end_time) - get_val(start_time)
-			if z1 < z2: 
+			if z1 > z2: 
 				self.bit_decoded.append(1)
 			else:
 				self.bit_decoded.append(0)
@@ -184,9 +185,11 @@ class BFSK:
 		plt.show()
 
 	def part_f(self):
+		l_A_n, l_n_bits = self.A_n, self.n_bits
+
 		self.n_bits = 100
+		self.bit_sequence = np.random.randint(0, 2, self.n_bits)
 		# Các giá trị A_n được thử có dạng 1e-6 * 1.1 ** i (i từ 0->300), là hàm mũ
-		l_A_n = self.A_n
 		A_ns = [1e-6]
 		for _ in range(300):
 			A_ns.append(A_ns[-1] * 1.1)
@@ -194,15 +197,15 @@ class BFSK:
 		snrs = []
 		for A_n in A_ns:
 			self.A_n = A_n
-			self.do_one()
+			self.do_one(do_random_bit=False)
 			signal_power = np.mean(self.s ** 2)
 			noise_power = np.mean(self.noise ** 2)
 			snr_linear = signal_power / noise_power
 			snr_db = 10 * np.log10(snr_linear)
 			bers.append(self.ber)
 			snrs.append(snr_db)
-		self.A_n = l_A_n
-
+		self.A_n, self.n_bits = l_A_n, l_n_bits
+		
 		plt.figure(figsize=(20, 10))
 		plt.plot(snrs, bers, marker='o', linestyle='-', color='b', label='SNR vs BER')
 
