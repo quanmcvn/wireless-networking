@@ -190,7 +190,7 @@ class BFSK:
 		for A_n in A_ns:
 			self.A_n = A_n
 			self.do_one(do_random_bit=False)
-			signal_power = np.mean(self.s ** 2)
+			signal_power = np.mean(self.m ** 2)
 			noise_power = np.mean(self.noise ** 2)
 			snr_linear = signal_power / noise_power
 			snr_db = 10 * np.log10(snr_linear)
