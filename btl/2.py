@@ -134,7 +134,7 @@ class BFSK:
 		l_f_1, l_f_2 = (self.f_1, self.f_2)
 		self.f_1 = 50
 		self.f_2 = 100
-		self.do_one()
+		self.do_one(do_random_bit=False)
 		self.part_a()
 		self.f_1, self.f_2 = (l_f_1, l_f_2)
 
